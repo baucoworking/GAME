@@ -4,11 +4,15 @@ export class Inventory {
   }
 
   addItem(item) {
-    this.items.set(item.id, item);
+    this.items.set(item.id, { ...item });
   }
 
   hasItem(id) {
     return this.items.has(id);
+  }
+
+  getItem(id) {
+    return this.items.get(id) ?? null;
   }
 
   removeItem(id) {
@@ -18,13 +22,13 @@ export class Inventory {
   getAll() {
     return Array.from(this.items.values());
   }
+
+  serialize() {
+    return this.getAll();
+  }
+
+  restore(items) {
+    this.items.clear();
+    (items ?? []).forEach((item) => this.addItem(item));
+  }
 }
-
-// OBJETO EJEMPLO:
-
-// const fuse = {
-//   id: "fuse_03",
-//   name: "Fusible quemado",
-//   type: "key_item",
-//   metadata: { puzzle: "P-01" },
-// };
