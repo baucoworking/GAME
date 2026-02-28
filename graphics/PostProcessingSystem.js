@@ -8,13 +8,13 @@ import { RadiationShader } from "../shaders/RadiationShader.js";
 
 export class PostProcessingSystem {
   constructor(renderer, scene, camera) {
+    this.camera = camera;
+    this.baseCameraPosition = camera.position.clone();
     this.composer = new EffectComposer(renderer);
 
-    // 1. Render Base
     const renderPass = new RenderPass(scene, camera);
     this.composer.addPass(renderPass);
 
-    // 2. SSAO (Oclusión Ambiental) - Da peso y terror a las esquinas
     this.ssaoPass = new SSAOPass(
       scene,
       camera,
@@ -26,26 +26,38 @@ export class PostProcessingSystem {
     this.ssaoPass.maxDistance = 0.1;
     this.composer.addPass(this.ssaoPass);
 
-    // 3. Unreal Bloom - Para bioluminiscencia (ojos ámbar) y luces de sirena
     this.bloomPass = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.8, // strength
-      0.4, // radius
-      0.85, // threshold (solo objetos muy brillantes emitirán luz)
+      0.8,
+      0.4,
+      0.85,
     );
     this.composer.addPass(this.bloomPass);
 
-    // 4. Shader de Radiación
     this.radiationPass = new ShaderPass(RadiationShader);
     this.composer.addPass(this.radiationPass);
+
+    this._shake = new THREE.Vector3();
   }
 
-  // Se actualiza en tu GameLoop
-  update(delta, tensionLevel) {
-    // Escalar el shader en función del sistema de tensión o dosímetro
-    this.radiationPass.uniforms["time"].value += delta;
+  setChromaticAberration(v) {
+    this.radiationPass.uniforms["chromatic"].value = v;
+  }
 
-    // Suavizamos la transición de la intensidad con un LERP
+  setVignetteDesaturation(v) {
+    this.radiationPass.uniforms["desaturation"].value = v;
+  }
+
+  setDistortion(v) {
+    this.radiationPass.uniforms["distortion"].value = v;
+  }
+
+  setCameraShake(v) {
+    this._shake.copy(v);
+  }
+
+  update(delta, tensionLevel) {
+    this.radiationPass.uniforms["time"].value += delta;
     const currentIntensity = this.radiationPass.uniforms["intensity"].value;
     this.radiationPass.uniforms["intensity"].value = THREE.MathUtils.lerp(
       currentIntensity,
@@ -55,7 +67,9 @@ export class PostProcessingSystem {
   }
 
   render() {
+    this.camera.position.add(this._shake);
     this.composer.render();
+    this.camera.position.sub(this._shake);
   }
 
   resize(width, height) {

@@ -15,7 +15,7 @@
 import * as THREE from "three";
 import { EnemyBase } from "./EnemyBase.js";
 import { buildAIFSM } from "./AIStateMachine.js";
-import { PatrolState, SearchState, AI_STATE } from "../core/StateMachine.js";
+import { AI_STATE } from "../core/StateMachine.js";
 import { Bus, EV } from "../core/EventBus.js";
 import { AI_STATE as S } from "../core/StateMachine.js";
 

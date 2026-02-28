@@ -19,6 +19,7 @@ export class Engine {
       antialias: false,
       powerPreference: "high-performance",
     });
+    this.renderer.shadowMap.enabled = true;
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     document.body.appendChild(this.renderer.domElement);
@@ -33,34 +34,38 @@ export class Engine {
     this.sceneManager = new SceneManager(this);
     this.loop = new GameLoop(this);
 
-    // AudioSystem se inicializa en start() para respetar la dependencia con SceneManager
+    this.systems = new Map();
+
     this.audioSystem = null;
 
     window.addEventListener("resize", this.onWindowResize.bind(this));
   }
 
+  registerSystem(name, system) {
+    this.systems.set(name, system);
+  }
+
+  getSystem(name) {
+    if (name === "postProcessing") return this.postProcessing;
+    return this.systems.get(name);
+  }
+
   start() {
-    // 1. Inicializar la escena y el jugador
     this.sceneManager.init();
-
-    // 2. Acoplar el sistema de audio a la referencia viva del jugador
     this.audioSystem = new AudioSystem(this.sceneManager.player);
-
-    // 3. Arrancar el bucle principal
+    this.registerSystem("audio", this.audioSystem);
     this.loop.start();
   }
 
   update(delta) {
     this.sceneManager.update(delta);
 
-    // Sincronización del listener 3D por cada frame
-    if (this.audioSystem) {
-      this.audioSystem.update(delta);
+    for (const [, system] of this.systems) {
+      system?.update?.(delta);
     }
 
-    // TODO: Escalar dinámicamente conectando la tensión real del TensionSystem
-    const currentTension = 0.0;
-    this.postProcessing.update(delta, currentTension);
+    const tension = this.getSystem("tension")?.tension ?? 0;
+    this.postProcessing.update(delta, tension);
     this.postProcessing.render();
   }
 
