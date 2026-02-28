@@ -1,0 +1,11 @@
+export const Config = {
+  WORLD_SIZE: 48,
+  PLAYER_HEIGHT: 1.65,
+  PLAYER_SPEED_WALK: 3.2,
+  PLAYER_SPEED_RUN: 5.5,
+  PLAYER_SPEED_CROUCH: 1.8,
+  MOUSE_SENSITIVITY: 0.0024,
+  NIGHT_DURATION_SECONDS: 480,
+};
+
+export default Config;

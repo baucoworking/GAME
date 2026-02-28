@@ -239,9 +239,9 @@ export class TensionSystem {
 
       // Pick a phantom sound type (matches real enemy sounds but is "fake")
       const phantoms = [
-        "rezagado_breathe",
+        "rezagado_drag",
         "vigilante_click",
-        "colectivo_breathe",
+        "colectivo_step",
       ];
       const sound = phantoms[Math.floor(Math.random() * phantoms.length)];
 
