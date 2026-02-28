@@ -3,6 +3,7 @@ import { GameLoop } from "./GameLoop.js";
 import { SceneManager } from "./SceneManager.js";
 import { PostProcessingSystem } from "../graphics/PostProcessingSystem.js";
 import { AtmosphereSystem } from "../world/DayNightCycle.js";
+import { AudioSystem } from "../systems/AudioSystem.js";
 
 export class Engine {
   constructor() {
@@ -32,16 +33,32 @@ export class Engine {
     this.sceneManager = new SceneManager(this);
     this.loop = new GameLoop(this);
 
+    // AudioSystem se inicializa en start() para respetar la dependencia con SceneManager
+    this.audioSystem = null;
+
     window.addEventListener("resize", this.onWindowResize.bind(this));
   }
 
   start() {
+    // 1. Inicializar la escena y el jugador
     this.sceneManager.init();
+
+    // 2. Acoplar el sistema de audio a la referencia viva del jugador
+    this.audioSystem = new AudioSystem(this.sceneManager.player);
+
+    // 3. Arrancar el bucle principal
     this.loop.start();
   }
 
   update(delta) {
     this.sceneManager.update(delta);
+
+    // Sincronización del listener 3D por cada frame
+    if (this.audioSystem) {
+      this.audioSystem.update(delta);
+    }
+
+    // TODO: Escalar dinámicamente conectando la tensión real del TensionSystem
     const currentTension = 0.0;
     this.postProcessing.update(delta, currentTension);
     this.postProcessing.render();
