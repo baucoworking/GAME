@@ -21,9 +21,10 @@ export class PostProcessingSystem {
       window.innerWidth,
       window.innerHeight,
     );
-    this.ssaoPass.kernelRadius = 16;
+    this.ssaoPass.kernelRadius = 12;
     this.ssaoPass.minDistance = 0.005;
-    this.ssaoPass.maxDistance = 0.1;
+    this.ssaoPass.maxDistance = 0.08;
+    this.ssaoPass.enabled = false;
     this.composer.addPass(this.ssaoPass);
 
     this.bloomPass = new UnrealBloomPass(
@@ -74,6 +75,6 @@ export class PostProcessingSystem {
 
   resize(width, height) {
     this.composer.setSize(width, height);
-    this.ssaoPass.setSize(width, height);
+    this.ssaoPass?.setSize(width, height);
   }
 }
