@@ -11,10 +11,10 @@ export class AtmosphereSystem {
     this.scene.fog = new THREE.FogExp2(this.nightFogColor, 0.04);
 
     // Luces globales
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.05); // Oscuridad casi total
+    this.ambientLight = new THREE.AmbientLight(0xaec6ff, 0.22); // Oscuridad casi total
     this.scene.add(this.ambientLight);
 
-    this.sunLight = new THREE.DirectionalLight(0xffaa55, 0.0); // Amanecer
+    this.sunLight = new THREE.DirectionalLight(0xffaa55, 0.35); // Amanecer
     this.sunLight.position.set(100, 50, 100);
     this.sunLight.castShadow = true;
     // Optimización de sombras
@@ -41,6 +41,6 @@ export class AtmosphereSystem {
     this.sunLight.intensity = THREE.MathUtils.lerp(0.0, 1.5, timeProgress);
 
     // Cambiamos el color de fondo para el techo de cristal (Atrio)
-    this.scene.background = currentFogColor;
+    this.scene.background = this.nightFogColor.clone().lerp(currentFogColor, 0.65);
   }
 }
